@@ -1,117 +1,837 @@
-<?php
-
-// Path to the front controller (this file)
-define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
-
-/*
- *---------------------------------------------------------------
- * BOOTSTRAP THE APPLICATION
- *---------------------------------------------------------------
- * This process sets up the path constants, loads and registers
- * our autoloader, along with Composer's, loads our constants
- * and fires up an environment-specific bootstrapping.
- */
-
-// Ensure the current directory is pointing to the front controller's directory
-chdir(__DIR__);
-
-// Load our paths config file
-// This is the line that might need to be changed, depending on your folder structure.
-$pathsConfig = FCPATH . '/app/Config/Paths.php';
-// ^^^ Change this if you move your application folder
-require realpath($pathsConfig) ?: $pathsConfig;
-
-$paths = new Config\Paths();
-
-// Location of the framework bootstrap file.
-$bootstrap = rtrim($paths->systemDirectory, '\\/ ') . DIRECTORY_SEPARATOR . 'bootstrap.php';
-$app       = require realpath($bootstrap) ?: $bootstrap;
-
-/*
- *---------------------------------------------------------------
- * LAUNCH THE APPLICATION
- *---------------------------------------------------------------
- * Now that everything is setup, it's time to actually fire
- * up the engines and make this app do its thang.
- */
-$app->run();
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Bitnami: Open Source. Simplified</title>
-  <link href="bitnami.css" media="all" rel="Stylesheet" type="text/css" /> 
-  <link href="/dashboard/stylesheets/all.css" rel="stylesheet" type="text/css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetBill - Sistem Tagihan Internet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .animate-fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body>
-  <div class="contain-to-grid">
-    <nav class="top-bar" data-topbar>
-      <ul class="title-area">
-        <li class="name">
-          <h1><a href="/dashboard/index.html">Apache Friends</a></h1>
-        </li>
-        <li class="toggle-topbar menu-icon">
-          <a href="#">
-            <span>Menu</span>
-          </a>
-        </li>
-      </ul>
-
-      <section class="top-bar-section">
-        <!-- Right Nav Section -->
-        <ul class="right">
-          <li class="active"><a href="/applications.html">Applications</a></li>
-          <li class=""><a href="/dashboard/faq.html">FAQs</a></li>
-          <li class=""><a href="/dashboard/howto.html">HOW-TO Guides</a></li>
-          <li class=""><a target="_blank" href="/dashboard/phpinfo.php">PHPInfo</a></li>
-          <li class=""><a href="/phpmyadmin/">phpMyAdmin</a></li>
-        </ul>
-      </section>
-    </nav>
-  </div>
-  <div id="wrapper">
-    <div class="hero">
-       <div class="row">
-         <div class="large-12 columns">
-            <p>Apache Friends and Bitnami are cooperating to make dozens of open source applications available on XAMPP, for free. Bitnami-packaged applications include Wordpress, Drupal, Joomla! and dozens of others and can be deployed with one-click installers. Visit the <a href="https://bitnami.com/xampp?utm_source=bitnami&utm_medium=installer&utm_campaign=XAMPP%2BModule" target="_blank">Bitnami XAMPP page</a> for details on the currently available apps.</p><br/>
-            <p>Check out our <a href="https://www.apachefriends.org/bitnami_for_xampp.html" target="_blank" >Bitnami for XAMPP Start Guide</a> for more information about the applications installed.</p>
-         </div>
-       </div>
-    </div>
-    <div id="lowerContainer" class="row">
-      <div id="content" class="large-12 columns">
-          <!-- @@BITNAMI_MODULE_PLACEHOLDER@@ -->
-      </div>
-    </div>
-  </div>
-  <footer>
-    <div class="row">
-      <div class="large-12 columns">
-        <div class="row">
-          <div class="large-8 columns">
-            <ul class="social">
-              <li class="twitter"><a href="https://twitter.com/apachefriends">Follow us on Twitter</a></li>
-              <li class="facebook"><a href="https://www.facebook.com/we.are.xampp">Like us on Facebook</a></li>
-              <li class="google"><a href="https://plus.google.com/+xampp/posts">Add us to your G+ Circles</a></li>
-            </ul>
-
-            <ul class="inline-list">
-              <li><a href="https://www.apachefriends.org/blog.html">Blog</a></li>
-              <li><a href="https://www.apachefriends.org/privacy_policy.html">Privacy Policy</a></li>
-              <li>
-                <a target="_blank" href="http://www.fastly.com/">                    CDN provided by
-                  <img width="48" data-2x="/dashboard/images/fastly-logo@2x.png" src="/dashboard/images/fastly-logo.png" />
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div class="large-4 columns">
-            <p class="text-right">Copyright (c) 2015, Apache Friends</p>
-          </div>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="gradient-bg shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-white text-2xl font-bold">🌐 NetBill</div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <button onclick="showSection('dashboard')" class="nav-btn text-white hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md text-sm font-medium transition-all">Dashboard</button>
+                        <button onclick="showSection('customers')" class="nav-btn text-white hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md text-sm font-medium transition-all">Pelanggan</button>
+                        <button onclick="showSection('billing')" class="nav-btn text-white hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md text-sm font-medium transition-all">Tagihan</button>
+                        <button onclick="showSection('reports')" class="nav-btn text-white hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md text-sm font-medium transition-all">Laporan</button>
+                        <button onclick="showSection('admin')" class="nav-btn text-white hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md text-sm font-medium transition-all">Admin</button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </footer>
-</body>
-</html>
+    </nav>
 
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section animate-fade-in">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+                <p class="text-gray-600">Ringkasan Sistem Tagihan Internet</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg card-shadow">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Pelanggan</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="totalCustomers">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg card-shadow">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Pendapatan Bulanan</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="monthlyRevenue">Rp 0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg card-shadow">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Tagihan Tertunda</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="pendingBills">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg card-shadow">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-red-100 text-red-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Tagihan Terlambat</p>
+                            <p class="text-2xl font-semibold text-gray-900" id="overdueBills">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-lg card-shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Aktivitas Terbaru</h3>
+                </div>
+                <div class="p-6">
+                    <div id="recentActivity" class="space-y-4">
+                        <p class="text-gray-500 text-center py-8">Belum ada aktivitas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customers Section -->
+        <div id="customers" class="section hidden animate-fade-in">
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Manajemen Pelanggan</h1>
+                    <p class="text-gray-600">Kelola pelanggan layanan internet Anda</p>
+                </div>
+                <button onclick="showAddCustomerModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    Tambah Pelanggan
+                </button>
+            </div>
+
+            <div class="bg-white rounded-lg card-shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Daftar Pelanggan</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paket</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Biaya Bulanan</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTable" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-500">Belum ada pelanggan</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Section -->
+        <div id="billing" class="section hidden animate-fade-in">
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Billing Management</h1>
+                    <p class="text-gray-600">Generate and manage customer bills</p>
+                </div>
+                <button onclick="generateAllBills()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    Generate Monthly Bills
+                </button>
+            </div>
+
+            <div class="bg-white rounded-lg card-shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Bills Overview</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bill ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billsTable" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">No bills generated yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel Section -->
+        <div id="admin" class="section hidden animate-fade-in">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Panel Admin</h1>
+                <p class="text-gray-600">Pengaturan sistem dan notifikasi otomatis</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- WhatsApp Settings -->
+                <div class="bg-white rounded-lg card-shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">🔔 Pengaturan Notifikasi WhatsApp</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nomor WhatsApp Admin</label>
+                            <input type="tel" id="adminWhatsApp" placeholder="628123456789" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Template Pesan Pengingat</label>
+                            <textarea id="reminderTemplate" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Halo {nama}, tagihan internet Anda sebesar {jumlah} akan jatuh tempo pada {tanggal}. Mohon segera lakukan pembayaran.">Halo {nama}, tagihan internet Anda sebesar {jumlah} akan jatuh tempo pada {tanggal}. Mohon segera lakukan pembayaran.</textarea>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="autoReminder" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="autoReminder" class="ml-2 block text-sm text-gray-900">Aktifkan pengingat otomatis 5 hari sebelum jatuh tempo</label>
+                        </div>
+                        <button onclick="saveAdminSettings()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors">
+                            Simpan Pengaturan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="bg-white rounded-lg card-shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">📊 Status Sistem</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Status Notifikasi:</span>
+                            <span id="notificationStatus" class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Nonaktif</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Pesan Terkirim Hari Ini:</span>
+                            <span id="messagesSentToday" class="font-semibold">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Pengingat Terjadwal:</span>
+                            <span id="scheduledReminders" class="font-semibold">0</span>
+                        </div>
+                        <button onclick="testWhatsAppNotification()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
+                            Test Kirim WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reminder Queue -->
+            <div class="bg-white rounded-lg card-shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">📅 Antrian Pengingat</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. WhatsApp</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jatuh Tempo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reminderQueue" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">Tidak ada pengingat terjadwal</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports" class="section hidden animate-fade-in">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
+                <p class="text-gray-600">View business insights and financial reports</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg card-shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Revenue Summary</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">This Month:</span>
+                            <span class="font-semibold" id="thisMonthRevenue">$0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Last Month:</span>
+                            <span class="font-semibold" id="lastMonthRevenue">$0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Revenue:</span>
+                            <span class="font-semibold text-green-600" id="totalRevenue">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg card-shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Payment Status</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Paid Bills:</span>
+                            <span class="font-semibold text-green-600" id="paidBillsCount">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Pending Bills:</span>
+                            <span class="font-semibold text-yellow-600" id="pendingBillsCount">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Overdue Bills:</span>
+                            <span class="font-semibold text-red-600" id="overdueBillsCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="addCustomerModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Tambah Pelanggan Baru</h3>
+            <form id="customerForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pelanggan</label>
+                    <input type="text" id="customerName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="customerEmail" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">No. WhatsApp</label>
+                    <input type="tel" id="customerPhone" placeholder="628123456789" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Paket Internet</label>
+                    <select id="customerPlan" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Pilih Paket</option>
+                        <option value="Dasar - 10 Mbps - Rp 150.000">Dasar - 10 Mbps - Rp 150.000</option>
+                        <option value="Standar - 25 Mbps - Rp 250.000">Standar - 25 Mbps - Rp 250.000</option>
+                        <option value="Premium - 50 Mbps - Rp 400.000">Premium - 50 Mbps - Rp 400.000</option>
+                        <option value="Ultra - 100 Mbps - Rp 650.000">Ultra - 100 Mbps - Rp 650.000</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="hideAddCustomerModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">Batal</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">Tambah Pelanggan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let customers = JSON.parse(localStorage.getItem('netbill_customers') || '[]');
+        let bills = JSON.parse(localStorage.getItem('netbill_bills') || '[]');
+        let activities = JSON.parse(localStorage.getItem('netbill_activities') || '[]');
+        let adminSettings = JSON.parse(localStorage.getItem('netbill_admin_settings') || '{}');
+        let reminderQueue = JSON.parse(localStorage.getItem('netbill_reminder_queue') || '[]');
+        let messagesSent = JSON.parse(localStorage.getItem('netbill_messages_sent') || '{}');
+
+        // Navigation
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionName).classList.remove('hidden');
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'bg-opacity-20');
+            });
+            event.target.classList.add('bg-white', 'bg-opacity-20');
+            
+            // Refresh data when switching sections
+            updateDashboard();
+            renderCustomers();
+            renderBills();
+            updateReports();
+        }
+
+        // Customer Management
+        function showAddCustomerModal() {
+            document.getElementById('addCustomerModal').classList.remove('hidden');
+            document.getElementById('addCustomerModal').classList.add('flex');
+        }
+
+        function hideAddCustomerModal() {
+            document.getElementById('addCustomerModal').classList.add('hidden');
+            document.getElementById('addCustomerModal').classList.remove('flex');
+            document.getElementById('customerForm').reset();
+        }
+
+        document.getElementById('customerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const customer = {
+                id: Date.now(),
+                name: document.getElementById('customerName').value,
+                email: document.getElementById('customerEmail').value,
+                phone: document.getElementById('customerPhone').value,
+                plan: document.getElementById('customerPlan').value,
+                status: 'Active',
+                joinDate: new Date().toISOString().split('T')[0]
+            };
+            
+            customers.push(customer);
+            localStorage.setItem('netbill_customers', JSON.stringify(customers));
+            
+            addActivity(`New customer added: ${customer.name}`);
+            hideAddCustomerModal();
+            renderCustomers();
+            updateDashboard();
+        });
+
+        function renderCustomers() {
+            const tbody = document.getElementById('customerTable');
+            
+            if (customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No customers added yet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = customers.map(customer => {
+                const planParts = customer.plan.split(' - ');
+                const planName = planParts[0];
+                const speed = planParts[1];
+                const price = planParts[2];
+                
+                return `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${customer.name}</div>
+                            <div class="text-sm text-gray-500">${customer.email}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${planName}</div>
+                            <div class="text-sm text-gray-500">${speed}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${price}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                ${customer.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button onclick="deleteCustomer(${customer.id})" class="text-red-600 hover:text-red-900">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function deleteCustomer(customerId) {
+            if (confirm('Are you sure you want to delete this customer?')) {
+                const customer = customers.find(c => c.id === customerId);
+                customers = customers.filter(c => c.id !== customerId);
+                bills = bills.filter(b => b.customerId !== customerId);
+                
+                localStorage.setItem('netbill_customers', JSON.stringify(customers));
+                localStorage.setItem('netbill_bills', JSON.stringify(bills));
+                
+                addActivity(`Customer deleted: ${customer.name}`);
+                renderCustomers();
+                renderBills();
+                updateDashboard();
+            }
+        }
+
+        // Billing Management
+        function generateAllBills() {
+            if (customers.length === 0) {
+                alert('No customers to generate bills for!');
+                return;
+            }
+            
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const existingBills = bills.filter(bill => bill.month === currentMonth);
+            
+            if (existingBills.length > 0) {
+                if (!confirm('Bills for this month already exist. Generate new ones?')) {
+                    return;
+                }
+                bills = bills.filter(bill => bill.month !== currentMonth);
+            }
+            
+            customers.forEach(customer => {
+                const planParts = customer.plan.split(' - ');
+                const amount = parseFloat(planParts[2].replace('$', ''));
+                
+                const bill = {
+                    id: Date.now() + Math.random(),
+                    customerId: customer.id,
+                    customerName: customer.name,
+                    amount: amount,
+                    month: currentMonth,
+                    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    status: 'Pending',
+                    generatedDate: new Date().toISOString().split('T')[0]
+                };
+                
+                bills.push(bill);
+            });
+            
+            localStorage.setItem('netbill_bills', JSON.stringify(bills));
+            addActivity(`Generated ${customers.length} bills for ${currentMonth}`);
+            renderBills();
+            updateDashboard();
+        }
+
+        function renderBills() {
+            const tbody = document.getElementById('billsTable');
+            
+            if (bills.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No bills generated yet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = bills.map(bill => {
+                const statusColor = bill.status === 'Paid' ? 'bg-green-100 text-green-800' : 
+                                  bill.status === 'Overdue' ? 'bg-red-100 text-red-800' : 
+                                  'bg-yellow-100 text-yellow-800';
+                
+                return `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${bill.id.toString().slice(-6)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bill.customerName}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${bill.amount.toFixed(2)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bill.dueDate}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
+                                ${bill.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            ${bill.status !== 'Paid' ? `<button onclick="markAsPaid(${bill.id})" class="text-green-600 hover:text-green-900">Mark Paid</button>` : ''}
+                            <button onclick="deleteBill(${bill.id})" class="text-red-600 hover:text-red-900">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function markAsPaid(billId) {
+            const bill = bills.find(b => b.id === billId);
+            if (bill) {
+                bill.status = 'Paid';
+                bill.paidDate = new Date().toISOString().split('T')[0];
+                localStorage.setItem('netbill_bills', JSON.stringify(bills));
+                addActivity(`Payment received from ${bill.customerName} - $${bill.amount}`);
+                renderBills();
+                updateDashboard();
+            }
+        }
+
+        function deleteBill(billId) {
+            if (confirm('Are you sure you want to delete this bill?')) {
+                bills = bills.filter(b => b.id !== billId);
+                localStorage.setItem('netbill_bills', JSON.stringify(bills));
+                renderBills();
+                updateDashboard();
+            }
+        }
+
+        // Dashboard Updates
+        function updateDashboard() {
+            document.getElementById('totalCustomers').textContent = customers.length;
+            
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const monthlyBills = bills.filter(bill => bill.month === currentMonth);
+            const monthlyRevenue = monthlyBills.filter(bill => bill.status === 'Paid').reduce((sum, bill) => sum + bill.amount, 0);
+            
+            document.getElementById('monthlyRevenue').textContent = `Rp ${monthlyRevenue.toLocaleString('id-ID')}`;
+            document.getElementById('pendingBills').textContent = bills.filter(bill => bill.status === 'Pending').length;
+            document.getElementById('overdueBills').textContent = bills.filter(bill => bill.status === 'Overdue').length;
+            
+            renderRecentActivity();
+        }
+
+        function renderRecentActivity() {
+            const container = document.getElementById('recentActivity');
+            
+            if (activities.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada aktivitas</p>';
+                return;
+            }
+            
+            const recentActivities = activities.slice(-5).reverse();
+            container.innerHTML = recentActivities.map(activity => `
+                <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-900">${activity.message}</p>
+                        <p class="text-xs text-gray-500">${activity.timestamp}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addActivity(message) {
+            activities.push({
+                message: message,
+                timestamp: new Date().toLocaleString()
+            });
+            localStorage.setItem('netbill_activities', JSON.stringify(activities));
+        }
+
+        // Reports
+        function updateReports() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const lastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 7);
+            
+            const thisMonthRevenue = bills.filter(bill => bill.month === currentMonth && bill.status === 'Paid').reduce((sum, bill) => sum + bill.amount, 0);
+            const lastMonthRevenue = bills.filter(bill => bill.month === lastMonth && bill.status === 'Paid').reduce((sum, bill) => sum + bill.amount, 0);
+            const totalRevenue = bills.filter(bill => bill.status === 'Paid').reduce((sum, bill) => sum + bill.amount, 0);
+            
+            document.getElementById('thisMonthRevenue').textContent = `$${thisMonthRevenue.toFixed(2)}`;
+            document.getElementById('lastMonthRevenue').textContent = `$${lastMonthRevenue.toFixed(2)}`;
+            document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
+            
+            document.getElementById('paidBillsCount').textContent = bills.filter(bill => bill.status === 'Paid').length;
+            document.getElementById('pendingBillsCount').textContent = bills.filter(bill => bill.status === 'Pending').length;
+            document.getElementById('overdueBillsCount').textContent = bills.filter(bill => bill.status === 'Overdue').length;
+        }
+
+        // Admin Functions
+        function saveAdminSettings() {
+            adminSettings = {
+                whatsappNumber: document.getElementById('adminWhatsApp').value,
+                reminderTemplate: document.getElementById('reminderTemplate').value,
+                autoReminder: document.getElementById('autoReminder').checked
+            };
+            
+            localStorage.setItem('netbill_admin_settings', JSON.stringify(adminSettings));
+            updateAdminStatus();
+            addActivity('Pengaturan admin disimpan');
+            alert('Pengaturan berhasil disimpan!');
+        }
+
+        function loadAdminSettings() {
+            if (adminSettings.whatsappNumber) {
+                document.getElementById('adminWhatsApp').value = adminSettings.whatsappNumber;
+            }
+            if (adminSettings.reminderTemplate) {
+                document.getElementById('reminderTemplate').value = adminSettings.reminderTemplate;
+            }
+            if (adminSettings.autoReminder !== undefined) {
+                document.getElementById('autoReminder').checked = adminSettings.autoReminder;
+            }
+            updateAdminStatus();
+        }
+
+        function updateAdminStatus() {
+            const statusElement = document.getElementById('notificationStatus');
+            const isActive = adminSettings.autoReminder && adminSettings.whatsappNumber;
+            
+            if (isActive) {
+                statusElement.textContent = 'Aktif';
+                statusElement.className = 'px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+            } else {
+                statusElement.textContent = 'Nonaktif';
+                statusElement.className = 'px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800';
+            }
+
+            // Update messages sent today
+            const today = new Date().toISOString().split('T')[0];
+            const todayCount = messagesSent[today] || 0;
+            document.getElementById('messagesSentToday').textContent = todayCount;
+
+            // Update scheduled reminders
+            document.getElementById('scheduledReminders').textContent = reminderQueue.length;
+        }
+
+        function testWhatsAppNotification() {
+            if (!adminSettings.whatsappNumber) {
+                alert('Silakan atur nomor WhatsApp admin terlebih dahulu!');
+                return;
+            }
+
+            const message = 'Test notifikasi dari NetBill - Sistem Tagihan Internet';
+            const whatsappUrl = `https://wa.me/${adminSettings.whatsappNumber}?text=${encodeURIComponent(message)}`;
+            
+            window.open(whatsappUrl, '_blank');
+            
+            // Update message count
+            const today = new Date().toISOString().split('T')[0];
+            messagesSent[today] = (messagesSent[today] || 0) + 1;
+            localStorage.setItem('netbill_messages_sent', JSON.stringify(messagesSent));
+            
+            addActivity('Test notifikasi WhatsApp dikirim');
+            updateAdminStatus();
+        }
+
+        function sendWhatsAppReminder(customer, bill) {
+            if (!adminSettings.whatsappNumber || !adminSettings.reminderTemplate) {
+                return false;
+            }
+
+            let message = adminSettings.reminderTemplate;
+            message = message.replace('{nama}', customer.name);
+            message = message.replace('{jumlah}', `Rp ${bill.amount.toLocaleString('id-ID')}`);
+            message = message.replace('{tanggal}', new Date(bill.dueDate).toLocaleDateString('id-ID'));
+
+            const whatsappUrl = `https://wa.me/${customer.phone}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+
+            // Update message count
+            const today = new Date().toISOString().split('T')[0];
+            messagesSent[today] = (messagesSent[today] || 0) + 1;
+            localStorage.setItem('netbill_messages_sent', JSON.stringify(messagesSent));
+
+            addActivity(`Pengingat WhatsApp dikirim ke ${customer.name}`);
+            return true;
+        }
+
+        function checkAndSendReminders() {
+            if (!adminSettings.autoReminder) return;
+
+            const today = new Date();
+            const fiveDaysFromNow = new Date(today.getTime() + (5 * 24 * 60 * 60 * 1000));
+            const fiveDaysDate = fiveDaysFromNow.toISOString().split('T')[0];
+
+            bills.forEach(bill => {
+                if (bill.status === 'Pending' && bill.dueDate === fiveDaysDate) {
+                    const customer = customers.find(c => c.id === bill.customerId);
+                    if (customer && customer.phone) {
+                        const reminderExists = reminderQueue.find(r => r.billId === bill.id);
+                        if (!reminderExists) {
+                            reminderQueue.push({
+                                id: Date.now() + Math.random(),
+                                billId: bill.id,
+                                customerId: customer.id,
+                                customerName: customer.name,
+                                customerPhone: customer.phone,
+                                amount: bill.amount,
+                                dueDate: bill.dueDate,
+                                status: 'Terjadwal',
+                                scheduledDate: today.toISOString().split('T')[0]
+                            });
+                        }
+                    }
+                }
+            });
+
+            localStorage.setItem('netbill_reminder_queue', JSON.stringify(reminderQueue));
+            renderReminderQueue();
+        }
+
+        function renderReminderQueue() {
+            const tbody = document.getElementById('reminderQueue');
+            
+            if (reminderQueue.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">Tidak ada pengingat terjadwal</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = reminderQueue.map(reminder => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${reminder.customerName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${reminder.customerPhone}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(reminder.dueDate).toLocaleDateString('id-ID')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp ${reminder.amount.toLocaleString('id-ID')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${reminder.status === 'Terkirim' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${reminder.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        ${reminder.status === 'Terjadwal' ? `<button onclick="sendReminderNow(${reminder.id})" class="text-blue-600 hover:text-blue-900">Kirim Sekarang</button>` : ''}
+                        <button onclick="deleteReminder(${reminder.id})" class="text-red-600 hover:text-red-900">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function sendReminderNow(reminderId) {
+            const reminder = reminderQueue.find(r => r.id === reminderId);
+            if (!reminder) return;
+
+            const customer = customers.find(c => c.id === reminder.customerId);
+            const bill = bills.find(b => b.id === reminder.billId);
+
+            if (customer && bill) {
+                if (sendWhatsAppReminder(customer, bill)) {
+                    reminder.status = 'Terkirim';
+                    reminder.sentDate = new Date().toISOString().split('T')[0];
+                    localStorage.setItem('netbill_reminder_queue', JSON.stringify(reminderQueue));
+                    renderReminderQueue();
+                    updateAdminStatus();
+                }
+            }
+        }
+
+        function deleteReminder(reminderId) {
+            if (confirm('Hapus pengingat ini?')) {
+                reminderQueue = reminderQueue.filter(r => r.id !== reminderId);
+                localStorage.setItem('netbill_reminder_queue', JSON.stringify(reminderQueue));
+                renderReminderQueue();
+                updateAdminStatus();
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminSettings();
+            updateDashboard();
+            renderCustomers();
+            renderBills();
+            updateReports();
+            renderReminderQueue();
+            checkAndSendReminders();
+        });
+
+        // Auto-update overdue bills
+        setInterval(() => {
+            const today = new Date().toISOString().split('T')[0];
+            let updated = false;
+            
+            bills.forEach(bill => {
+                if (bill.status === 'Pending' && bill.dueDate < today) {
+                    bill.status = 'Overdue';
+                    updated = true;
+                }
+            });
+            
+            if (updated) {
+                localStorage.setItem('netbill_bills', JSON.stringify(bills));
+                renderBills();
+                updateDashboard();
+            }
+        }, 60000); // Check every minute
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9775624a3073a030',t:'MTc1NjU2ODM5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
