@@ -7,11 +7,89 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .animate-fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f9fafb;
+            min-height: 100vh;
+        }
+        .gradient-bg { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        }
+        .card-shadow { 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
+        .animate-fade-in { 
+            animation: fadeIn 0.5s ease-in; 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .section {
+            display: block;
+        }
+        .section.hidden {
+            display: none !important;
+        }
+        .nav-btn {
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .overflow-x-auto {
+            overflow-x: auto;
+        }
+        
+        /* Fallback styles jika Tailwind tidak load */
+        .bg-gray-50 { background-color: #f9fafb; }
+        .text-white { color: white; }
+        .text-gray-900 { color: #111827; }
+        .text-gray-600 { color: #4b5563; }
+        .text-gray-500 { color: #6b7280; }
+        .bg-white { background-color: white; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .font-bold { font-weight: 700; }
+        .font-medium { font-weight: 500; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .grid { display: grid; }
+        .gap-6 { gap: 1.5rem; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .space-x-4 > * + * { margin-left: 1rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .max-w-7xl { max-width: 80rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .border { border-width: 1px; }
+        .border-gray-300 { border-color: #d1d5db; }
+        .border-gray-200 { border-color: #e5e7eb; }
+        .w-full { width: 100%; }
+        .h-16 { height: 4rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-center { text-align: center; }
+        .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+        .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+        .hover\:bg-blue-700:hover { background-color: #1d4ed8; }
+        .bg-blue-600 { background-color: #2563eb; }
+        .bg-green-600 { background-color: #16a34a; }
+        .hover\:bg-green-700:hover { background-color: #15803d; }
+        .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -364,22 +442,36 @@
 
         // Navigation
         function showSection(sectionName) {
+            // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.add('hidden');
             });
-            document.getElementById(sectionName).classList.remove('hidden');
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionName);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
             
             // Update nav buttons
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-white', 'bg-opacity-20');
             });
-            event.target.classList.add('bg-white', 'bg-opacity-20');
+            
+            // Add active class to clicked button
+            const clickedBtn = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+            if (clickedBtn) {
+                clickedBtn.classList.add('bg-white', 'bg-opacity-20');
+            }
             
             // Refresh data when switching sections
             updateDashboard();
             renderCustomers();
             renderBills();
             updateReports();
+            if (sectionName === 'admin') {
+                renderReminderQueue();
+            }
         }
 
         // Customer Management
@@ -805,13 +897,23 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('NetBill System Loading...');
+            
+            // Load admin settings first
             loadAdminSettings();
+            
+            // Initialize dashboard as default view
+            showSection('dashboard');
+            
+            // Load all data
             updateDashboard();
             renderCustomers();
             renderBills();
             updateReports();
             renderReminderQueue();
             checkAndSendReminders();
+            
+            console.log('NetBill System Ready!');
         });
 
         // Auto-update overdue bills
@@ -833,5 +935,5 @@
             }
         }, 60000); // Check every minute
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9775624a3073a030',t:'MTc1NjU2ODM5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97756ff4d5c1f8f0',t:'MTc1NjU2ODk1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
