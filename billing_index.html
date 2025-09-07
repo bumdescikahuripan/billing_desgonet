@@ -3,719 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Billing Internet BUMDes</title>
+    <title>Tagihan Internet - Sistem Manajemen</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .status-paid { background: linear-gradient(45deg, #10b981, #059669); }
+        .status-unpaid { background: linear-gradient(45deg, #ef4444, #dc2626); }
+        .status-pending { background: linear-gradient(45deg, #f59e0b, #d97706); }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+<body class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow-lg border-b-4 border-blue-600">
-        <div class="container mx-auto px-6 py-4">
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-wifi text-3xl text-blue-600"></i>
+                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                        </svg>
+                    </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-800">BUMDes Internet</h1>
-                        <p class="text-sm text-gray-600">Sistem Billing & Manajemen</p>
+                        <h1 class="text-2xl font-bold">Tagihan Internet</h1>
+                        <p class="text-blue-100 text-sm">Sistem Manajemen Pembayaran</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span class="text-gray-600">Admin: <strong>Operator BUMDes</strong></span>
-                    <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                    </button>
-                </div>
+                <button onclick="exportToPDF()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Export PDF</span>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- Navigation Tabs -->
-    <div class="container mx-auto px-6 py-4">
-        <div class="bg-white rounded-lg shadow-md p-1">
-            <div class="flex space-x-1">
-                <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-btn active flex-1 py-3 px-4 rounded-md font-medium transition-colors">
-                    <i class="fas fa-chart-dashboard mr-2"></i>Dashboard
+    <div class="container mx-auto px-4 py-8">
+        <!-- Navigation Tabs -->
+        <div class="bg-white rounded-xl card-shadow mb-8">
+            <div class="flex border-b border-gray-200">
+                <button onclick="switchTab('dashboard')" id="dashboardTab" class="px-6 py-4 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-blue-50">
+                    Dashboard
                 </button>
-                <button onclick="showTab('customers')" id="tab-customers" class="tab-btn flex-1 py-3 px-4 rounded-md font-medium transition-colors">
-                    <i class="fas fa-users mr-2"></i>Data Pelanggan
+                <button onclick="switchTab('customers')" id="customersTab" class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50">
+                    Kelola Pelanggan
                 </button>
-                <button onclick="showTab('billing')" id="tab-billing" class="tab-btn flex-1 py-3 px-4 rounded-md font-medium transition-colors">
-                    <i class="fas fa-file-invoice-dollar mr-2"></i>Tagihan
-                </button>
-                <button onclick="showTab('notifications')" id="tab-notifications" class="tab-btn flex-1 py-3 px-4 rounded-md font-medium transition-colors">
-                    <i class="fas fa-bell mr-2"></i>Notifikasi WA
+                <button onclick="switchTab('bills')" id="billsTab" class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50">
+                    Tagihan
                 </button>
             </div>
         </div>
-    </div>
 
-    <!-- Dashboard Tab -->
-    <div id="dashboard-content" class="tab-content container mx-auto px-6 pb-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+        <!-- Dashboard Tab -->
+        <div id="dashboardContent">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 card-shadow">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-600 text-sm">Total Pelanggan</p>
-                        <p class="text-3xl font-bold text-gray-800" id="total-customers">0</p>
+                        <p class="text-gray-500 text-sm font-medium">Total Pengguna</p>
+                        <p class="text-2xl font-bold text-gray-900" id="totalUsers">10</p>
                     </div>
-                    <i class="fas fa-users text-3xl text-blue-500"></i>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm">Tagihan Lunas</p>
-                        <p class="text-3xl font-bold text-gray-800" id="paid-bills">0</p>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        </svg>
                     </div>
-                    <i class="fas fa-check-circle text-3xl text-green-500"></i>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm">Tagihan Tertunggak</p>
-                        <p class="text-3xl font-bold text-gray-800" id="unpaid-bills">0</p>
-                    </div>
-                    <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-600 text-sm">Pendapatan Bulan Ini</p>
-                        <p class="text-2xl font-bold text-gray-800" id="monthly-revenue">Rp 0</p>
-                    </div>
-                    <i class="fas fa-money-bill-wave text-3xl text-yellow-500"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-md p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Tagihan Jatuh Tempo Hari Ini</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Nama Pelanggan</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Paket</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Tagihan</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="due-today-table" class="divide-y divide-gray-200">
-                        <tr>
-                            <td colspan="4" class="px-4 py-8 text-center text-gray-500">Tidak ada tagihan jatuh tempo hari ini</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Customers Tab -->
-    <div id="customers-content" class="tab-content hidden container mx-auto px-6 pb-8">
-        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-800">Data Pelanggan</h3>
-                <button onclick="showAddCustomerModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                    <i class="fas fa-plus mr-2"></i>Tambah Pelanggan
-                </button>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ID</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Nama</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Alamat</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">No. HP</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Paket</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Tarif</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customers-table" class="divide-y divide-gray-200">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Billing Tab -->
-    <div id="billing-content" class="tab-content hidden container mx-auto px-6 pb-8">
-        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-800">Manajemen Tagihan</h3>
-                <div class="flex space-x-3">
-                    <select id="billing-filter" class="border border-gray-300 rounded-lg px-3 py-2">
-                        <option value="all">Semua Status</option>
-                        <option value="paid">Lunas</option>
-                        <option value="unpaid">Belum Bayar</option>
-                        <option value="overdue">Terlambat</option>
-                    </select>
-                    <button onclick="generateBills()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-file-invoice mr-2"></i>Generate Tagihan Bulan Ini
-                    </button>
                 </div>
             </div>
             
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">ID Tagihan</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Pelanggan</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Periode</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Jumlah</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Jatuh Tempo</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="billing-table" class="divide-y divide-gray-200">
-                    </tbody>
-                </table>
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Sudah Bayar</p>
+                        <p class="text-2xl font-bold text-green-600" id="paidCount">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Belum Bayar</p>
+                        <p class="text-2xl font-bold text-red-600" id="unpaidCount">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Tagihan</p>
+                        <p class="text-2xl font-bold text-purple-600" id="totalAmount">Rp 0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Notifications Tab -->
-    <div id="notifications-content" class="tab-content hidden container mx-auto px-6 pb-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Kirim Peringatan WhatsApp</h3>
+        </div>
+
+        <!-- Customer Management Tab -->
+        <div id="customersContent" class="hidden">
+            <!-- Add Customer Form -->
+            <div class="bg-white rounded-xl p-6 card-shadow mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-6">Tambah Pelanggan Manual</h2>
+                <form id="customerForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                        <input type="text" id="customerName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Alamat</label>
+                        <input type="text" id="customerAddress" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">No. Telepon</label>
+                        <input type="tel" id="customerPhone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Paket Internet</label>
+                        <select id="customerPackage" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Pilih Paket</option>
+                            <option value="Basic - 10 Mbps">Basic - 10 Mbps (Rp 100.000)</option>
+                            <option value="Standard - 25 Mbps">Standard - 25 Mbps (Rp 150.000)</option>
+                            <option value="Premium - 50 Mbps">Premium - 50 Mbps (Rp 200.000)</option>
+                            <option value="Ultra - 100 Mbps">Ultra - 100 Mbps (Rp 300.000)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
+                        <input type="date" id="customerStartDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                            Tambah Pelanggan
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Import from Excel -->
+            <div class="bg-white rounded-xl p-6 card-shadow mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-6">Import Pelanggan dari Excel</h2>
                 <div class="space-y-4">
-                    <button onclick="sendBulkReminders()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors">
-                        <i class="fab fa-whatsapp mr-2"></i>Kirim Peringatan ke Semua Tagihan Tertunggak
-                    </button>
-                    <button onclick="sendDueReminders()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 px-4 rounded-lg transition-colors">
-                        <i class="fas fa-clock mr-2"></i>Kirim Peringatan Jatuh Tempo Hari Ini
-                    </button>
-                    <button onclick="sendOverdueReminders()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg transition-colors">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>Kirim Peringatan Terlambat
-                    </button>
-                </div>
-                
-                <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                    <h4 class="font-semibold text-blue-800 mb-2">Template Pesan WhatsApp:</h4>
-                    <textarea id="wa-template" rows="4" class="w-full border border-gray-300 rounded-lg p-3 text-sm" placeholder="Masukkan template pesan...">Halo {nama},
-
-Tagihan internet BUMDes Anda untuk periode {periode} sebesar {jumlah} akan jatuh tempo pada {tanggal}.
-
-Mohon segera lakukan pembayaran. Terima kasih!</textarea>
+                    <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                        <div>
+                            <h3 class="font-medium text-blue-900">Format Excel yang Diperlukan:</h3>
+                            <p class="text-sm text-blue-700">Kolom: Nama, Alamat, Telepon, Paket, Tanggal_Mulai</p>
+                        </div>
+                        <button onclick="downloadTemplate()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200">
+                            Download Template
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <input type="file" id="excelFile" accept=".xlsx,.xls" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <button onclick="importFromExcel()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors duration-200">
+                            Import Excel
+                        </button>
+                    </div>
                 </div>
             </div>
-            
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Log Notifikasi</h3>
-                <div id="notification-log" class="space-y-3 max-h-96 overflow-y-auto">
-                    <div class="text-gray-500 text-center py-8">Belum ada notifikasi yang dikirim</div>
+
+            <!-- Customers List -->
+            <div class="bg-white rounded-xl card-shadow overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-900">Daftar Pelanggan</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telepon</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paket</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Mulai</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Customers will be populated here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Add Customer Modal -->
-    <div id="add-customer-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800">Tambah Pelanggan Baru</h3>
-                <button onclick="hideAddCustomerModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <form id="add-customer-form" class="space-y-4">
+        <!-- Bills Tab -->
+        <div id="billsContent" class="hidden">
+        <!-- Add New Bill Form -->
+        <div class="bg-white rounded-xl p-6 card-shadow mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Tambah Tagihan Baru</h2>
+            <form id="billForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                    <input type="text" id="customer-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-                    <textarea id="customer-address" class="w-full border border-gray-300 rounded-lg px-3 py-2" rows="2" required></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">No. HP (WhatsApp)</label>
-                    <input type="tel" id="customer-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="08xxxxxxxxxx" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Paket Internet</label>
-                    <select id="customer-package" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
-                        <option value="">Pilih Paket</option>
-                        <option value="Basic 10Mbps">Basic 10Mbps - Rp 150.000</option>
-                        <option value="Standard 20Mbps">Standard 20Mbps - Rp 250.000</option>
-                        <option value="Premium 50Mbps">Premium 50Mbps - Rp 400.000</option>
-                        <option value="Ultra 100Mbps">Ultra 100Mbps - Rp 600.000</option>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Pengguna</label>
+                    <select id="userName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Pilih Pelanggan</option>
                     </select>
                 </div>
-                <div class="flex space-x-3 pt-4">
-                    <button type="button" onclick="hideAddCustomerModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg transition-colors">
-                        Batal
-                    </button>
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
-                        Simpan
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Paket Internet</label>
+                    <select id="package" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Pilih Paket</option>
+                        <option value="Basic - 10 Mbps">Basic - 10 Mbps</option>
+                        <option value="Standard - 25 Mbps">Standard - 25 Mbps</option>
+                        <option value="Premium - 50 Mbps">Premium - 50 Mbps</option>
+                        <option value="Ultra - 100 Mbps">Ultra - 100 Mbps</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah Tagihan</label>
+                    <input type="number" id="amount" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="150000">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                        Tambah Tagihan
                     </button>
                 </div>
             </form>
         </div>
+
+        <!-- Bills Table -->
+        <div class="bg-white rounded-xl card-shadow overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">Daftar Tagihan</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengguna</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paket</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billsTable" class="bg-white divide-y divide-gray-200">
+                        <!-- Bills will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Data storage
-        let customers = JSON.parse(localStorage.getItem('bumdes-customers') || '[]');
-        let bills = JSON.parse(localStorage.getItem('bumdes-bills') || '[]');
-        let notifications = JSON.parse(localStorage.getItem('bumdes-notifications') || '[]');
-
-        // Package pricing
-        const packages = {
-            'Basic 10Mbps': 150000,
-            'Standard 20Mbps': 250000,
-            'Premium 50Mbps': 400000,
-            'Ultra 100Mbps': 600000
-        };
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add sample data if empty
-            if (customers.length === 0) {
-                addSampleData();
-            }
-            
-            updateDashboard();
-            renderCustomers();
-            renderBills();
-            renderNotifications();
-            
-            // Add event listeners
-            document.getElementById('add-customer-form').addEventListener('submit', addCustomer);
-            document.getElementById('billing-filter').addEventListener('change', renderBills);
-        });
-
-        function addSampleData() {
-            const sampleCustomers = [
+        // Initialize data storage
+        let bills = JSON.parse(localStorage.getItem('internetBills')) || [];
+        let customers = JSON.parse(localStorage.getItem('internetCustomers')) || [];
+        let currentTab = 'dashboard';
+        
+        // Initialize with sample data if empty
+        if (bills.length === 0) {
+            bills = [
                 {
-                    id: 'C001',
-                    name: 'Budi Santoso',
-                    address: 'Jl. Merdeka No. 15, RT 02/RW 01',
-                    phone: '081234567890',
-                    package: 'Standard 20Mbps',
-                    status: 'active',
-                    joinDate: '2024-01-15'
+                    id: 1,
+                    userName: 'Ahmad Rizki',
+                    package: 'Premium - 50 Mbps',
+                    amount: 200000,
+                    date: '2024-01-15',
+                    status: 'paid'
                 },
                 {
-                    id: 'C002',
-                    name: 'Siti Aminah',
-                    address: 'Jl. Sudirman No. 8, RT 01/RW 02',
-                    phone: '082345678901',
-                    package: 'Basic 10Mbps',
-                    status: 'active',
-                    joinDate: '2024-02-01'
+                    id: 2,
+                    userName: 'Siti Nurhaliza',
+                    package: 'Standard - 25 Mbps',
+                    amount: 150000,
+                    date: '2024-01-15',
+                    status: 'unpaid'
                 },
                 {
-                    id: 'C003',
-                    name: 'Ahmad Wijaya',
-                    address: 'Jl. Diponegoro No. 22, RT 03/RW 01',
-                    phone: '083456789012',
-                    package: 'Premium 50Mbps',
-                    status: 'active',
-                    joinDate: '2024-01-20'
+                    id: 3,
+                    userName: 'Budi Santoso',
+                    package: 'Basic - 10 Mbps',
+                    amount: 100000,
+                    date: '2024-01-15',
+                    status: 'pending'
                 }
             ];
-            
-            customers = sampleCustomers;
-            localStorage.setItem('bumdes-customers', JSON.stringify(customers));
-            
-            // Generate sample bills
-            generateBills();
+            saveBills();
         }
 
-        function showTab(tabName) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected tab content
-            document.getElementById(tabName + '-content').classList.remove('hidden');
-            document.getElementById('tab-' + tabName).classList.add('active');
+        // Initialize customers with sample data if empty
+        if (customers.length === 0) {
+            customers = [
+                {
+                    id: 1,
+                    name: 'Ahmad Rizki',
+                    address: 'Jl. Merdeka No. 123',
+                    phone: '081234567890',
+                    package: 'Premium - 50 Mbps',
+                    startDate: '2024-01-01'
+                },
+                {
+                    id: 2,
+                    name: 'Siti Nurhaliza',
+                    address: 'Jl. Sudirman No. 456',
+                    phone: '081234567891',
+                    package: 'Standard - 25 Mbps',
+                    startDate: '2024-01-01'
+                },
+                {
+                    id: 3,
+                    name: 'Budi Santoso',
+                    address: 'Jl. Thamrin No. 789',
+                    phone: '081234567892',
+                    package: 'Basic - 10 Mbps',
+                    startDate: '2024-01-01'
+                }
+            ];
+            saveCustomers();
         }
 
-        function updateDashboard() {
-            const totalCustomers = customers.length;
-            const paidBills = bills.filter(bill => bill.status === 'paid').length;
-            const unpaidBills = bills.filter(bill => bill.status === 'unpaid' || bill.status === 'overdue').length;
-            
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            const monthlyRevenue = bills
-                .filter(bill => {
-                    const billDate = new Date(bill.dueDate);
-                    return bill.status === 'paid' && 
-                           billDate.getMonth() === currentMonth && 
-                           billDate.getFullYear() === currentYear;
-                })
-                .reduce((sum, bill) => sum + bill.amount, 0);
-
-            document.getElementById('total-customers').textContent = totalCustomers;
-            document.getElementById('paid-bills').textContent = paidBills;
-            document.getElementById('unpaid-bills').textContent = unpaidBills;
-            document.getElementById('monthly-revenue').textContent = formatCurrency(monthlyRevenue);
-
-            // Update due today table
-            const today = new Date().toISOString().split('T')[0];
-            const dueToday = bills.filter(bill => bill.dueDate === today && bill.status !== 'paid');
-            
-            const dueTable = document.getElementById('due-today-table');
-            if (dueToday.length === 0) {
-                dueTable.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-gray-500">Tidak ada tagihan jatuh tempo hari ini</td></tr>';
-            } else {
-                dueTable.innerHTML = dueToday.map(bill => {
-                    const customer = customers.find(c => c.id === bill.customerId);
-                    return `
-                        <tr>
-                            <td class="px-4 py-3">${customer?.name || 'Unknown'}</td>
-                            <td class="px-4 py-3">${customer?.package || 'Unknown'}</td>
-                            <td class="px-4 py-3">${formatCurrency(bill.amount)}</td>
-                            <td class="px-4 py-3">
-                                <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
-                                    Jatuh Tempo
-                                </span>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }
+        // Save bills to localStorage
+        function saveBills() {
+            localStorage.setItem('internetBills', JSON.stringify(bills));
+            updateStats();
+            renderBills();
+            updateCustomerDropdown();
         }
 
-        function renderCustomers() {
-            const table = document.getElementById('customers-table');
-            
-            if (customers.length === 0) {
-                table.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">Belum ada data pelanggan</td></tr>';
-                return;
-            }
-
-            table.innerHTML = customers.map(customer => `
-                <tr>
-                    <td class="px-4 py-3 font-medium">${customer.id}</td>
-                    <td class="px-4 py-3">${customer.name}</td>
-                    <td class="px-4 py-3">${customer.address}</td>
-                    <td class="px-4 py-3">${customer.phone}</td>
-                    <td class="px-4 py-3">${customer.package}</td>
-                    <td class="px-4 py-3">${formatCurrency(packages[customer.package] || 0)}</td>
-                    <td class="px-4 py-3">
-                        <span class="px-2 py-1 text-xs rounded-full ${customer.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                            ${customer.status === 'active' ? 'Aktif' : 'Nonaktif'}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3">
-                        <div class="flex space-x-2">
-                            <button onclick="editCustomer('${customer.id}')" class="text-blue-600 hover:text-blue-800">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteCustomer('${customer.id}')" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function renderBills() {
-            const filter = document.getElementById('billing-filter').value;
-            let filteredBills = bills;
-            
-            if (filter !== 'all') {
-                filteredBills = bills.filter(bill => bill.status === filter);
-            }
-
-            const table = document.getElementById('billing-table');
-            
-            if (filteredBills.length === 0) {
-                table.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">Tidak ada data tagihan</td></tr>';
-                return;
-            }
-
-            table.innerHTML = filteredBills.map(bill => {
-                const customer = customers.find(c => c.id === bill.customerId);
-                const statusClass = {
-                    'paid': 'bg-green-100 text-green-800',
-                    'unpaid': 'bg-yellow-100 text-yellow-800',
-                    'overdue': 'bg-red-100 text-red-800'
-                };
-                
-                const statusText = {
-                    'paid': 'Lunas',
-                    'unpaid': 'Belum Bayar',
-                    'overdue': 'Terlambat'
-                };
-
-                return `
-                    <tr>
-                        <td class="px-4 py-3 font-medium">${bill.id}</td>
-                        <td class="px-4 py-3">${customer?.name || 'Unknown'}</td>
-                        <td class="px-4 py-3">${bill.period}</td>
-                        <td class="px-4 py-3">${formatCurrency(bill.amount)}</td>
-                        <td class="px-4 py-3">${formatDate(bill.dueDate)}</td>
-                        <td class="px-4 py-3">
-                            <span class="px-2 py-1 text-xs rounded-full ${statusClass[bill.status]}">
-                                ${statusText[bill.status]}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3">
-                            <div class="flex space-x-2">
-                                ${bill.status !== 'paid' ? `
-                                    <button onclick="markAsPaid('${bill.id}')" class="text-green-600 hover:text-green-800" title="Tandai Lunas">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                ` : ''}
-                                <button onclick="sendIndividualReminder('${bill.id}')" class="text-blue-600 hover:text-blue-800" title="Kirim Peringatan">
-                                    <i class="fab fa-whatsapp"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function renderNotifications() {
-            const logContainer = document.getElementById('notification-log');
-            
-            if (notifications.length === 0) {
-                logContainer.innerHTML = '<div class="text-gray-500 text-center py-8">Belum ada notifikasi yang dikirim</div>';
-                return;
-            }
-
-            logContainer.innerHTML = notifications.slice(-10).reverse().map(notif => `
-                <div class="p-3 border border-gray-200 rounded-lg">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="font-medium text-gray-800">${notif.recipient}</span>
-                        <span class="text-xs text-gray-500">${formatDateTime(notif.timestamp)}</span>
-                    </div>
-                    <p class="text-sm text-gray-600">${notif.message}</p>
-                    <div class="mt-2">
-                        <span class="px-2 py-1 text-xs rounded-full ${notif.status === 'sent' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
-                            ${notif.status === 'sent' ? 'Terkirim' : 'Demo Mode'}
-                        </span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function showAddCustomerModal() {
-            document.getElementById('add-customer-modal').classList.remove('hidden');
-            document.getElementById('add-customer-modal').classList.add('flex');
-        }
-
-        function hideAddCustomerModal() {
-            document.getElementById('add-customer-modal').classList.add('hidden');
-            document.getElementById('add-customer-modal').classList.remove('flex');
-            document.getElementById('add-customer-form').reset();
-        }
-
-        function addCustomer(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('customer-name').value;
-            const address = document.getElementById('customer-address').value;
-            const phone = document.getElementById('customer-phone').value;
-            const packageName = document.getElementById('customer-package').value;
-            
-            const newCustomer = {
-                id: 'C' + String(customers.length + 1).padStart(3, '0'),
-                name,
-                address,
-                phone,
-                package: packageName,
-                status: 'active',
-                joinDate: new Date().toISOString().split('T')[0]
-            };
-            
-            customers.push(newCustomer);
-            localStorage.setItem('bumdes-customers', JSON.stringify(customers));
-            
-            hideAddCustomerModal();
+        // Save customers to localStorage
+        function saveCustomers() {
+            localStorage.setItem('internetCustomers', JSON.stringify(customers));
             renderCustomers();
-            updateDashboard();
-            
-            alert('Pelanggan berhasil ditambahkan!');
+            updateCustomerDropdown();
         }
 
-        function generateBills() {
-            const currentDate = new Date();
-            const currentMonth = currentDate.getMonth();
-            const currentYear = currentDate.getFullYear();
-            const period = `${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`;
+        // Switch tabs
+        function switchTab(tab) {
+            // Hide all content
+            document.getElementById('dashboardContent').classList.add('hidden');
+            document.getElementById('customersContent').classList.add('hidden');
+            document.getElementById('billsContent').classList.add('hidden');
             
-            // Check if bills already generated for this month
-            const existingBills = bills.filter(bill => bill.period === period);
-            if (existingBills.length > 0) {
-                alert('Tagihan untuk bulan ini sudah dibuat!');
-                return;
-            }
+            // Remove active styles from all tabs
+            document.getElementById('dashboardTab').className = 'px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50';
+            document.getElementById('customersTab').className = 'px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50';
+            document.getElementById('billsTab').className = 'px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50';
             
-            const newBills = customers.filter(c => c.status === 'active').map((customer, index) => {
-                const dueDate = new Date(currentYear, currentMonth, 25); // Due on 25th of each month
-                
-                return {
-                    id: 'B' + currentYear + String(currentMonth + 1).padStart(2, '0') + String(index + 1).padStart(3, '0'),
-                    customerId: customer.id,
-                    period,
-                    amount: packages[customer.package] || 0,
-                    dueDate: dueDate.toISOString().split('T')[0],
-                    status: 'unpaid',
-                    createdDate: new Date().toISOString().split('T')[0]
-                };
-            });
+            // Show selected content and activate tab
+            document.getElementById(tab + 'Content').classList.remove('hidden');
+            document.getElementById(tab + 'Tab').className = 'px-6 py-4 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-blue-50';
             
-            bills.push(...newBills);
-            localStorage.setItem('bumdes-bills', JSON.stringify(bills));
-            
-            renderBills();
-            updateDashboard();
-            
-            alert(`${newBills.length} tagihan berhasil dibuat untuk periode ${period}!`);
+            currentTab = tab;
         }
 
-        function markAsPaid(billId) {
-            const bill = bills.find(b => b.id === billId);
-            if (bill) {
-                bill.status = 'paid';
-                bill.paidDate = new Date().toISOString().split('T')[0];
-                localStorage.setItem('bumdes-bills', JSON.stringify(bills));
-                
-                renderBills();
-                updateDashboard();
-                
-                alert('Tagihan berhasil ditandai sebagai lunas!');
-            }
+        // Update statistics
+        function updateStats() {
+            const totalUsers = bills.length;
+            const paidCount = bills.filter(bill => bill.status === 'paid').length;
+            const unpaidCount = bills.filter(bill => bill.status === 'unpaid').length;
+            const totalAmount = bills.reduce((sum, bill) => sum + bill.amount, 0);
+
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('paidCount').textContent = paidCount;
+            document.getElementById('unpaidCount').textContent = unpaidCount;
+            document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
         }
 
-        function sendBulkReminders() {
-            const unpaidBills = bills.filter(bill => bill.status === 'unpaid' || bill.status === 'overdue');
-            
-            if (unpaidBills.length === 0) {
-                alert('Tidak ada tagihan tertunggak untuk dikirim peringatan.');
-                return;
-            }
-            
-            unpaidBills.forEach(bill => {
-                sendReminder(bill);
-            });
-            
-            alert(`Peringatan WhatsApp berhasil dikirim ke ${unpaidBills.length} pelanggan!`);
-        }
-
-        function sendDueReminders() {
-            const today = new Date().toISOString().split('T')[0];
-            const dueBills = bills.filter(bill => bill.dueDate === today && bill.status !== 'paid');
-            
-            if (dueBills.length === 0) {
-                alert('Tidak ada tagihan jatuh tempo hari ini.');
-                return;
-            }
-            
-            dueBills.forEach(bill => {
-                sendReminder(bill);
-            });
-            
-            alert(`Peringatan jatuh tempo berhasil dikirim ke ${dueBills.length} pelanggan!`);
-        }
-
-        function sendOverdueReminders() {
-            const today = new Date();
-            const overdueBills = bills.filter(bill => {
-                const dueDate = new Date(bill.dueDate);
-                return dueDate < today && bill.status !== 'paid';
-            });
-            
-            // Update status to overdue
-            overdueBills.forEach(bill => {
-                bill.status = 'overdue';
-            });
-            localStorage.setItem('bumdes-bills', JSON.stringify(bills));
-            
-            if (overdueBills.length === 0) {
-                alert('Tidak ada tagihan terlambat.');
-                return;
-            }
-            
-            overdueBills.forEach(bill => {
-                sendReminder(bill);
-            });
-            
-            renderBills();
-            updateDashboard();
-            alert(`Peringatan terlambat berhasil dikirim ke ${overdueBills.length} pelanggan!`);
-        }
-
-        function sendIndividualReminder(billId) {
-            const bill = bills.find(b => b.id === billId);
-            if (bill) {
-                sendReminder(bill);
-                alert('Peringatan WhatsApp berhasil dikirim!');
-            }
-        }
-
-        function sendReminder(bill) {
-            const customer = customers.find(c => c.id === bill.customerId);
-            if (!customer) return;
-            
-            const template = document.getElementById('wa-template').value;
-            const message = template
-                .replace('{nama}', customer.name)
-                .replace('{periode}', bill.period)
-                .replace('{jumlah}', formatCurrency(bill.amount))
-                .replace('{tanggal}', formatDate(bill.dueDate));
-            
-            // In a real application, this would integrate with WhatsApp Business API
-            // For demo purposes, we'll just log the notification
-            const notification = {
-                id: 'N' + Date.now(),
-                recipient: customer.name,
-                phone: customer.phone,
-                message: message,
-                billId: bill.id,
-                timestamp: new Date().toISOString(),
-                status: 'demo' // In real app: 'sent', 'failed', etc.
-            };
-            
-            notifications.push(notification);
-            localStorage.setItem('bumdes-notifications', JSON.stringify(notifications));
-            
-            renderNotifications();
-            
-            // Simulate WhatsApp link (for demo)
-            const whatsappUrl = `https://wa.me/${customer.phone.replace(/^0/, '62')}?text=${encodeURIComponent(message)}`;
-            console.log('WhatsApp URL:', whatsappUrl);
-        }
-
-        function editCustomer(customerId) {
-            alert('Fitur edit pelanggan akan segera tersedia!');
-        }
-
-        function deleteCustomer(customerId) {
-            if (confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) {
-                customers = customers.filter(c => c.id !== customerId);
-                localStorage.setItem('bumdes-customers', JSON.stringify(customers));
-                
-                renderCustomers();
-                updateDashboard();
-                
-                alert('Pelanggan berhasil dihapus!');
-            }
-        }
-
-        // Utility functions
+        // Format currency
         function formatCurrency(amount) {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -724,37 +394,355 @@ Mohon segera lakukan pembayaran. Terima kasih!</textarea>
             }).format(amount);
         }
 
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
+        // Render bills table
+        function renderBills() {
+            const tbody = document.getElementById('billsTable');
+            tbody.innerHTML = '';
+
+            bills.forEach(bill => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-colors duration-150';
+                
+                const statusClass = bill.status === 'paid' ? 'status-paid' : 
+                                  bill.status === 'unpaid' ? 'status-unpaid' : 'status-pending';
+                const statusText = bill.status === 'paid' ? 'Lunas' : 
+                                 bill.status === 'unpaid' ? 'Belum Bayar' : 'Pending';
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                ${bill.userName.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${bill.userName}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bill.package}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${formatCurrency(bill.amount)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(bill.date).toLocaleDateString('id-ID')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="${statusClass} text-white text-xs font-medium px-3 py-1 rounded-full">${statusText}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <button onclick="toggleStatus(${bill.id})" class="text-blue-600 hover:text-blue-900 transition-colors duration-150">
+                            ${bill.status === 'paid' ? 'Batalkan' : 'Bayar'}
+                        </button>
+                        <button onclick="deleteBill(${bill.id})" class="text-red-600 hover:text-red-900 transition-colors duration-150">
+                            Hapus
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
             });
         }
 
-        function formatDateTime(dateString) {
-            return new Date(dateString).toLocaleString('id-ID', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+        // Render customers table
+        function renderCustomers() {
+            const tbody = document.getElementById('customersTable');
+            tbody.innerHTML = '';
+
+            customers.forEach(customer => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-colors duration-150';
+
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                ${customer.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${customer.name}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${customer.address}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${customer.phone}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${customer.package}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(customer.startDate).toLocaleDateString('id-ID')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <button onclick="editCustomer(${customer.id})" class="text-blue-600 hover:text-blue-900 transition-colors duration-150">
+                            Edit
+                        </button>
+                        <button onclick="deleteCustomer(${customer.id})" class="text-red-600 hover:text-red-900 transition-colors duration-150">
+                            Hapus
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
             });
         }
+
+        // Update customer dropdown in bills form
+        function updateCustomerDropdown() {
+            const select = document.getElementById('userName');
+            select.innerHTML = '<option value="">Pilih Pelanggan</option>';
+            
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.name;
+                option.textContent = customer.name;
+                select.appendChild(option);
+            });
+        }
+
+        // Add new customer
+        document.getElementById('customerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('customerName').value;
+            const address = document.getElementById('customerAddress').value;
+            const phone = document.getElementById('customerPhone').value;
+            const package = document.getElementById('customerPackage').value;
+            const startDate = document.getElementById('customerStartDate').value;
+            
+            if (customers.length >= 10) {
+                alert('Maksimal 10 pelanggan sudah tercapai!');
+                return;
+            }
+
+            const newCustomer = {
+                id: Date.now(),
+                name,
+                address,
+                phone,
+                package,
+                startDate
+            };
+
+            customers.push(newCustomer);
+            saveCustomers();
+            
+            // Reset form
+            this.reset();
+            
+            // Show success message
+            showNotification('Pelanggan berhasil ditambahkan!', 'success');
+        });
+
+        // Add new bill
+        document.getElementById('billForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userName = document.getElementById('userName').value;
+            const package = document.getElementById('package').value;
+            const amount = parseInt(document.getElementById('amount').value);
+            
+            if (bills.length >= 10) {
+                alert('Maksimal 10 tagihan sudah tercapai!');
+                return;
+            }
+
+            const newBill = {
+                id: Date.now(),
+                userName,
+                package,
+                amount,
+                date: new Date().toISOString().split('T')[0],
+                status: 'unpaid'
+            };
+
+            bills.push(newBill);
+            saveBills();
+            
+            // Reset form
+            this.reset();
+            
+            // Show success message
+            showNotification('Tagihan berhasil ditambahkan!', 'success');
+        });
+
+        // Toggle payment status
+        function toggleStatus(id) {
+            const bill = bills.find(b => b.id === id);
+            if (bill) {
+                bill.status = bill.status === 'paid' ? 'unpaid' : 'paid';
+                saveBills();
+                showNotification(`Status pembayaran ${bill.userName} berhasil diubah!`, 'success');
+            }
+        }
+
+        // Delete bill
+        function deleteBill(id) {
+            if (confirm('Yakin ingin menghapus tagihan ini?')) {
+                bills = bills.filter(b => b.id !== id);
+                saveBills();
+                showNotification('Tagihan berhasil dihapus!', 'success');
+            }
+        }
+
+        // Delete customer
+        function deleteCustomer(id) {
+            if (confirm('Yakin ingin menghapus pelanggan ini?')) {
+                customers = customers.filter(c => c.id !== id);
+                saveCustomers();
+                showNotification('Pelanggan berhasil dihapus!', 'success');
+            }
+        }
+
+        // Edit customer (simple implementation)
+        function editCustomer(id) {
+            const customer = customers.find(c => c.id === id);
+            if (customer) {
+                document.getElementById('customerName').value = customer.name;
+                document.getElementById('customerAddress').value = customer.address;
+                document.getElementById('customerPhone').value = customer.phone;
+                document.getElementById('customerPackage').value = customer.package;
+                document.getElementById('customerStartDate').value = customer.startDate;
+                
+                // Remove the customer temporarily for editing
+                customers = customers.filter(c => c.id !== id);
+                saveCustomers();
+                
+                showNotification('Data pelanggan dimuat untuk diedit!', 'success');
+            }
+        }
+
+        // Download Excel template
+        function downloadTemplate() {
+            const wb = XLSX.utils.book_new();
+            const ws_data = [
+                ['Nama', 'Alamat', 'Telepon', 'Paket', 'Tanggal_Mulai'],
+                ['Ahmad Rizki', 'Jl. Merdeka No. 123', '081234567890', 'Premium - 50 Mbps', '2024-01-01'],
+                ['Siti Nurhaliza', 'Jl. Sudirman No. 456', '081234567891', 'Standard - 25 Mbps', '2024-01-01']
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, 'Template Pelanggan');
+            XLSX.writeFile(wb, 'template_pelanggan.xlsx');
+            showNotification('Template Excel berhasil diunduh!', 'success');
+        }
+
+        // Import from Excel
+        function importFromExcel() {
+            const fileInput = document.getElementById('excelFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Pilih file Excel terlebih dahulu!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                    let importedCount = 0;
+                    jsonData.forEach(row => {
+                        if (customers.length >= 10) {
+                            return;
+                        }
+
+                        if (row.Nama && row.Alamat && row.Telepon && row.Paket && row.Tanggal_Mulai) {
+                            const newCustomer = {
+                                id: Date.now() + Math.random(),
+                                name: row.Nama,
+                                address: row.Alamat,
+                                phone: row.Telepon,
+                                package: row.Paket,
+                                startDate: row.Tanggal_Mulai
+                            };
+                            customers.push(newCustomer);
+                            importedCount++;
+                        }
+                    });
+
+                    if (importedCount > 0) {
+                        saveCustomers();
+                        showNotification(`${importedCount} pelanggan berhasil diimport!`, 'success');
+                        fileInput.value = '';
+                    } else {
+                        showNotification('Tidak ada data valid yang diimport!', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Error membaca file Excel!', 'error');
+                    console.error('Excel import error:', error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white font-medium transform transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Export to PDF
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.text('Laporan Tagihan Internet', 20, 20);
+            
+            // Add date
+            doc.setFontSize(12);
+            doc.text(`Tanggal: ${new Date().toLocaleDateString('id-ID')}`, 20, 35);
+            
+            // Prepare table data
+            const tableData = bills.map(bill => [
+                bill.userName,
+                bill.package,
+                formatCurrency(bill.amount),
+                new Date(bill.date).toLocaleDateString('id-ID'),
+                bill.status === 'paid' ? 'Lunas' : bill.status === 'unpaid' ? 'Belum Bayar' : 'Pending'
+            ]);
+            
+            // Add table
+            doc.autoTable({
+                head: [['Nama', 'Paket', 'Jumlah', 'Tanggal', 'Status']],
+                body: tableData,
+                startY: 45,
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 3
+                },
+                headStyles: {
+                    fillColor: [102, 126, 234],
+                    textColor: 255
+                }
+            });
+            
+            // Add summary
+            const finalY = doc.lastAutoTable.finalY + 20;
+            doc.setFontSize(12);
+            doc.text('Ringkasan:', 20, finalY);
+            doc.text(`Total Pengguna: ${bills.length}`, 20, finalY + 10);
+            doc.text(`Sudah Bayar: ${bills.filter(b => b.status === 'paid').length}`, 20, finalY + 20);
+            doc.text(`Belum Bayar: ${bills.filter(b => b.status === 'unpaid').length}`, 20, finalY + 30);
+            doc.text(`Total Tagihan: ${formatCurrency(bills.reduce((sum, bill) => sum + bill.amount, 0))}`, 20, finalY + 40);
+            
+            // Save PDF
+            doc.save(`tagihan-internet-${new Date().toISOString().split('T')[0]}.pdf`);
+            showNotification('PDF berhasil diunduh!', 'success');
+        }
+
+        // Initialize app
+        updateStats();
+        renderBills();
+        renderCustomers();
+        updateCustomerDropdown();
+        
+        // Set default start date to today
+        document.getElementById('customerStartDate').value = new Date().toISOString().split('T')[0];
     </script>
-
-    <style>
-        .tab-btn {
-            @apply text-gray-600 hover:text-blue-600 hover:bg-blue-50;
-        }
-        
-        .tab-btn.active {
-            @apply bg-blue-600 text-white;
-        }
-        
-        .tab-btn:hover.active {
-            @apply bg-blue-700 text-white;
-        }
-    </style>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97970ed9e58ffcee',t:'MTc1NjkyMTQ5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97b376235604fde7',t:'MTc1NzIxOTMyOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
